@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MyApp.APIGateway/MyApp.APIGateway.csproj" />
+  <Project Path="MyApp.BlazorEF/MyApp.BlazorEF.csproj" />
+  <Project Path="MyApp.OrdersApi/MyApp.OrdersApi.csproj" />
+  <Project Path="MyApp.ProductsApi/MyApp.ProductsApi.csproj" />
+</Solution>

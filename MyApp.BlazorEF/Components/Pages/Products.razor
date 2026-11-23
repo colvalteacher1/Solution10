@@ -1,0 +1,107 @@
+﻿@page "/products"
+@using System.Net.Http.Json
+@using Models
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Gestion des produits</h3>
+
+<hr />
+
+<h5>Rechercher un produit</h5>
+
+<input type="number" class="form-control"
+       @bind="searchId" />
+
+<button class="btn btn-primary mt-2"
+        @onclick="GetProduct">
+    Rechercher
+</button>
+
+@if (selectedProduct != null)
+{
+    <div class="alert alert-success mt-3">
+        <strong>@selectedProduct.Name</strong>
+        - @selectedProduct.Price $
+    </div>
+}
+
+<hr />
+
+<h5>Liste des produits</h5>
+
+<button class="btn btn-primary mb-3"
+        @onclick="GetProducts">
+    Actualiser
+</button>
+
+@if (products != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Price $</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info">@message</div>
+}
+
+@code {
+    private HttpClient http = default!;
+
+    private List<Product>? products;
+    private Product? selectedProduct;
+
+    private int searchId;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        http = HttpClientFactory.CreateClient("ClientApi");
+
+        await GetProducts();
+    }
+
+    // GET: /products
+    private async Task GetProducts()
+    {
+        products = await http.GetFromJsonAsync<List<Product>>(
+            "products");
+    }
+
+    // GET: /products/{id}
+    private async Task GetProduct()
+    {
+        try
+        {
+            selectedProduct = await http.GetFromJsonAsync<Product>(
+                $"products/{searchId}");
+
+            message = "";
+        }
+        catch (HttpRequestException)
+        {
+            selectedProduct = null;
+            message = "Produit introuvable.";
+        }
+    }
+}

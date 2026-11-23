@@ -1,0 +1,21 @@
+@MyApp.OrdersApi_HostAddress = http://localhost:5002
+
+GET {{MyApp.OrdersApi_HostAddress}}/api/orders
+Accept: application/json
+
+###
+
+GET {{MyApp.OrdersApi_HostAddress}}/api/orders/5
+Accept: application/json
+
+
+###
+
+POST {{MyApp.OrdersApi_HostAddress}}/api/orders
+Content-Type: application/json
+{
+  "customerName": "Lotfi",
+  "productId": 3,
+  "quantity": 2,
+  "total": 500
+}

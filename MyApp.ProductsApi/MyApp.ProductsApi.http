@@ -1,0 +1,34 @@
+@MyApp.ProductsApi_HostAddress = http://localhost:5001
+
+GET {{MyApp.ProductsApi_HostAddress}}/api/products
+Accept: application/json
+
+###
+
+GET {{MyApp.ProductsApi_HostAddress}}/api/products/1
+Accept: application/json
+
+###
+
+POST {{MyApp.ProductsApi_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Monitor",
+  "price": 300
+}
+
+###
+
+PUT {{MyApp.ProductsApi_HostAddress}}/api/products/11
+Content-Type: application/json
+
+{
+  "id": 11,
+  "name": "Laptop Pro",
+  "price": 1500
+}
+
+###
+
+DELETE {{MyApp.ProductsApi_HostAddress}}/api/products/11

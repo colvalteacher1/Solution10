@@ -1,0 +1,188 @@
+﻿@page "/orders"
+@using System.Net.Http.Json
+@using Models
+@inject IHttpClientFactory HttpClientFactory
+@rendermode InteractiveServer
+
+<h3>Gestion des commandes</h3>
+
+<hr />
+
+
+<h5 class="mb-3">Ajouter une commande</h5>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="mb-3">
+            <label class="form-label">Nom du client</label>
+            <input class="form-control"
+                   type="text"
+                   placeholder="Ex. : Alain"
+                   @bind="newOrder.CustomerName" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Identifiant du produit</label>
+            <input class="form-control"
+                   type="number"
+                   min="1"
+                   placeholder="Ex. : 2"
+                   @bind="newOrder.ProductId" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Quantité</label>
+            <input class="form-control"
+                   type="number"
+                   min="1"
+                   placeholder="Ex. : 2"
+                   @bind="newOrder.Quantity" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Montant total ($)</label>
+            <input class="form-control"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   placeholder="Ex. : 1600"
+                   @bind="newOrder.Total" />
+        </div>
+
+        <div class="d-grid">
+            <button class="btn btn-success"
+                    @onclick="AddOrder">
+                <i class="bi bi-plus-circle"></i>
+                Ajouter la commande
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<hr />
+
+<h5>Rechercher une commande</h5>
+
+<input type="number" class="form-control"
+       @bind="searchId" />
+
+<button class="btn btn-primary mt-2"
+        @onclick="GetOrder">
+    Rechercher
+</button>
+
+@if (selectedOrder != null)
+{
+    <p class="mt-2">
+        Commande : @selectedOrder.Id -
+        @selectedOrder.CustomerName -
+        @selectedOrder.Total $
+    </p>
+}
+
+<hr />
+
+<h5>Liste des commandes</h5>
+
+<button class="btn btn-primary mb-3"
+        @onclick="GetOrders">
+    Actualiser
+</button>
+
+@if (orders != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.CustomerName</td>
+                    <td>@order.ProductId</td>
+                    <td>@order.Quantity</td>
+                    <td>@order.Total $</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info">@message</div>
+}
+
+@code {
+    private HttpClient http = default!;
+
+    private List<Order>? orders;
+    private Order? selectedOrder;
+
+    private Order newOrder = new();
+
+    private int searchId;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        http = HttpClientFactory.CreateClient("ClientApi");
+
+        await GetOrders();
+    }
+
+    // GET: /orders
+    private async Task GetOrders()
+    {
+        orders = await http.GetFromJsonAsync<List<Order>>(
+            "orders");
+    }
+
+    // GET: /orders/{id}
+    private async Task GetOrder()
+    {
+        try
+        {
+            selectedOrder = await http.GetFromJsonAsync<Order>(
+                $"orders/{searchId}");
+
+            message = "";
+        }
+        catch (HttpRequestException)
+        {
+            selectedOrder = null;
+            message = "Commande introuvable.";
+        }
+    }
+
+    // POST: /orders
+    private async Task AddOrder()
+    {
+        var response = await http.PostAsJsonAsync(
+            "orders", newOrder);
+
+        if (response.IsSuccessStatusCode)
+        {
+            message = "Commande ajoutée avec succès !";
+
+            newOrder = new Order();
+
+            await GetOrders();
+        }
+        else
+        {
+            message = "Erreur lors de l'ajout.";
+        }
+    }
+}
